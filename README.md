@@ -10,7 +10,7 @@ During markdown rendering, image references like:
 ![a photo](path/to/image.jpg)
 ![a second photo](path/to/image2.jpg "optional image title")
 ```
-are rendered into:
+are rendered as:
 ```html
 <p>
   <img class="deferred_image_0"
@@ -24,8 +24,8 @@ are rendered into:
   >
 </p>
 <style data-deferredimg64>
-  .deferred_image_0{ content:url(data:image/jpeg;base64,/9j/4AAQ... /* bits constituting image.jpg */ }
-  .deferred_image_1{ content:url(data:image/jpeg;base64,/9j/4AAQSkZ........ }
+  .deferred_image_0{ content:url(data:image/jpeg;base64,/9j/4A... /* bits constituting image.jpg */ ) }
+  .deferred_image_1{ content:url(data:image/jpeg;base64,/9j/4AAQSkZ........ ) }
 </style>
 ```
 
@@ -37,18 +37,18 @@ This is inspired by
 local images as base64 data, though inlined directly into the `src` attribute
 of each `<img>`. I *really like* the single-fetch-retrieves-everything aspect
 of that approach, however:
- - Text and structure loading is blocked by images early on the page.
+ - Text and layout loading is delayed by large images early in the page.
  - Large data blobs make the HTML somewhat difficult to read and work with.
    - This is especially problematic when you're co-working with certain [blind
      idiot savants](https://code.claude.com/docs/en/overview), with a tendency
-     to curl pages directly, without any post-processing step to render HTML
+     to curl pages directly, lacking any post-processing step to render HTML
      into text.
 
 `goldmark-deferred-img64` takes the same approach for reading and encoding
 image data, but defers writing out of the main document flow, using a CSS
 `content: url()` rule to set the `src` attribute of each `<img>` after loading.
-`width` and `height` are set through in-line style, to avoid any layout shifts
-over the course of the load.
+`width` and `height` are set using an in-line `style` property to avoid any
+layout shifts over the course of the load.
 
 ## Usage
 
@@ -90,7 +90,7 @@ at time of writing, working in:
 - **Firefox 63+** (2018)
 - **Chrome 28+** (2013)
 
-However it's a bit of a weird feature, and the it seems like there may have been
+However it's a bit of a weird feature, and it seems like there may have been
 some ambiguity in the spec:
 - [csswg-drafts#2831](https://github.com/w3c/csswg-drafts/issues/2831)
 - [Firefox bug 215083](https://bugzilla.mozilla.org/show_bug.cgi?id=215083) (now closed, good historical reference)
