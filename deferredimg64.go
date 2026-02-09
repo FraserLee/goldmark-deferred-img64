@@ -28,6 +28,7 @@ type deferredImage struct {
 
 type Extension struct {
     scaleFactor float64
+    baseDir     string
     images      []deferredImage
 }
 
@@ -35,12 +36,22 @@ type imgRenderer struct {
     e *Extension
 }
 
+func New() *Extension {
+    return &Extension{scaleFactor: 1}
+}
+
 // All images are given inline CSS styles, setting
 // `... set style="width:{width}px; height:{height}px">`
 // where width and height are the dimensions of the image, multiplied by scaleFactor.
 // (scaleFactor = 0.5 halves the pixel dimensions, appropriate for retina displays)
-func New(scaleFactor float64) *Extension {
-    return &Extension{scaleFactor: scaleFactor}
+func (e *Extension) WithScale(factor float64) *Extension {
+    e.scaleFactor = factor
+    return e
+}
+
+func (e *Extension) WithBaseDir(dir string) *Extension {
+    e.baseDir = dir
+    return e
 }
 
 func (e *Extension) Extend(m goldmark.Markdown) {
@@ -105,7 +116,11 @@ func (r *imgRenderer) embedImage(n *ast.Image) (
         return
     }
 
-    b, err := os.ReadFile(filepath.Clean(src))
+    path := filepath.Clean(src)
+    if !filepath.IsAbs(path) && r.e.baseDir != "" {
+        path = filepath.Join(r.e.baseDir, path)
+    }
+    b, err := os.ReadFile(path)
     if err != nil {
         return
     }

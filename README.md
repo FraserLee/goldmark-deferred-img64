@@ -68,7 +68,9 @@ func main() {
 
     md := goldmark.New(
         goldmark.WithExtensions(
-          deferredimg64.New(0.5), // => css width/height = 0.5 * image pixel dimensions
+          deferredimg64.New().
+            WithScale(0.5).  // css width/height = 0.5 * image pixel dimensions
+            WithBaseDir("/path/to/content/"), // defaults to pwd
         ),
     )
 
